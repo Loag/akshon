@@ -42,8 +42,13 @@
       "outDir": "dist"
     }
   },
+  "dependencies": {
+    "js-yaml": "^4.1.0"
+  },
   "devDependencies": {
     "jsii": "^5.9.13",
-    "jsii-pacmak": "^1.119.0"
+    "jsii-pacmak": "^1.119.0",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^20.0.0"
   }
 }

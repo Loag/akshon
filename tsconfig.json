@@ -25,6 +25,7 @@
     "strictPropertyInitialization": true,
     "stripInternal": false,
     "target": "es2020",
+    "downlevelIteration": true,
     "composite": false,
     "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
   },
