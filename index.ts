@@ -1,5 +1,5 @@
 // Core synthesis
-export { ISynthesizable, synth } from './lib/synthesis';
+export { ISynth, synth } from './lib/synth';
 
 // Workflow
 export { Workflow, WorkflowTriggers } from './lib/workflow';

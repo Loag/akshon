@@ -1,5 +1,6 @@
-import { ISynthesizable } from './synthesis';
+import { Construct } from 'constructs';
 import { Job } from './job';
+import { ISynth } from './synth';
 
 /**
  * Workflow trigger events
@@ -82,7 +83,7 @@ export interface WorkflowTriggers {
 /**
  * A GitHub Actions workflow
  */
-export class Workflow implements ISynthesizable {
+export class Workflow extends Construct implements ISynth {
   /**
    * The name of the workflow
    */
@@ -92,11 +93,6 @@ export class Workflow implements ISynthesizable {
    * When the workflow should run
    */
   public readonly on: WorkflowTriggers;
-
-  /**
-   * The jobs in this workflow
-   */
-  private readonly jobs: Map<string, Job> = new Map();
 
   /**
    * Environment variables available to all jobs
@@ -126,29 +122,73 @@ export class Workflow implements ISynthesizable {
     cancelInProgress?: boolean;
   };
 
-  constructor(name: string, on: WorkflowTriggers) {
-    this.name = name;
-    this.on = on;
+  /**
+   * Map of job IDs to jobs
+   */
+  private readonly jobIdMap: Map<string, Job> = new Map();
+
+  constructor(props: {
+    name: string;
+    on: WorkflowTriggers;
+    env?: Record<string, string>;
+    defaults?: {
+      run?: {
+        shell?: string;
+        workingDirectory?: string;
+      };
+    };
+    permissions?: Record<string, string | 'read' | 'write' | 'none'>;
+    concurrency?: {
+      group?: string;
+      cancelInProgress?: boolean;
+    };
+  }) {
+    super(undefined as any, '');
+    this.name = props.name;
+    this.on = props.on;
+    this.env = props.env;
+    this.defaults = props.defaults;
+    this.permissions = props.permissions;
+    this.concurrency = props.concurrency;
+
+    // Add validation
+    this.node.addValidation({
+      validate: () => this.validate(),
+    });
   }
 
   /**
    * Add a job to this workflow
    */
-  public addJob(id: string, job: Job): void {
-    this.jobs.set(id, job);
+  public addJob(id: string, job: Job): Job {
+    // Ensure the job is a child of this workflow
+    if (job.node.scope !== this) {
+      // If job was created with a different scope, we need to re-parent it
+      // In practice, jobs should be created with this workflow as the scope
+      throw new Error(`Job must be created as a child of the workflow. Use: new Job(this, '${id}', ...)`);
+    }
+    this.jobIdMap.set(id, job);
+    return job;
   }
 
   /**
    * Get a job by ID
    */
   public getJob(id: string): Job | undefined {
-    return this.jobs.get(id);
+    return this.jobIdMap.get(id);
+  }
+
+  /**
+   * Get all jobs in this workflow
+   */
+  public get jobs(): Job[] {
+    return this.node.children.filter(child => child instanceof Job) as Job[];
   }
 
   /**
    * Synthesize this workflow to a plain object
    */
-  public synthesize(): any {
+  public synth(): any {
     const result: any = {
       name: this.name,
       on: this.synthesizeTriggers(),
@@ -171,12 +211,64 @@ export class Workflow implements ISynthesizable {
     }
 
     const jobsObj: any = {};
-    for (const [id, job] of Array.from(this.jobs.entries())) {
-      jobsObj[id] = job.synthesize();
+    // Get jobs in order they were added, using jobIdMap for IDs
+    const jobs = this.node.children
+      .filter(child => child instanceof Job)
+      .map(child => {
+        const job = child as Job;
+        // Find the job ID from the map, or use the node id as fallback
+        let jobId = job.node.id;
+        for (const [id, j] of this.jobIdMap.entries()) {
+          if (j === job) {
+            jobId = id;
+            break;
+          }
+        }
+        return { id: jobId, job };
+      })
+      .sort((a, b) => {
+        // Maintain order based on when they were added
+        const aIndex = this.node.children.indexOf(a.job);
+        const bIndex = this.node.children.indexOf(b.job);
+        return aIndex - bIndex;
+      });
+
+    for (const { id, job } of jobs) {
+      jobsObj[id] = job.synth();
     }
     result.jobs = jobsObj;
 
     return result;
+  }
+
+  /**
+   * Validate the workflow
+   */
+  private validate(): string[] {
+    const errors: string[] = [];
+
+    if (!this.name || this.name.trim().length === 0) {
+      errors.push('Workflow name is required');
+    }
+
+    if (!this.on || Object.keys(this.on).length === 0) {
+      errors.push('Workflow must have at least one trigger');
+    }
+
+    if (this.jobs.length === 0) {
+      errors.push('Workflow must have at least one job');
+    }
+
+    // Check for duplicate job IDs
+    const jobIds = new Set<string>();
+    for (const [id] of this.jobIdMap.entries()) {
+      if (jobIds.has(id)) {
+        errors.push(`Duplicate job ID: ${id}`);
+      }
+      jobIds.add(id);
+    }
+
+    return errors;
   }
 
   private synthesizeTriggers(): any {

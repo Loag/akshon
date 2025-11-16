@@ -1,10 +1,10 @@
-import { ISynthesizable } from './synthesis';
+import { Construct } from 'constructs';
 import { Action } from './action';
-
+import { ISynth } from './synth';
 /**
  * A step in a GitHub Actions job
  */
-export class Step implements ISynthesizable {
+export class Step extends Construct implements ISynth {
   /**
    * The name of the step
    */
@@ -60,7 +60,7 @@ export class Step implements ISynthesizable {
    */
   public if?: string;
 
-  constructor(props?: {
+  constructor(scope: Construct, id: string, props?: {
     name?: string;
     uses?: string;
     run?: string;
@@ -73,6 +73,7 @@ export class Step implements ISynthesizable {
     timeoutMinutes?: number;
     if?: string;
   }) {
+    super(scope, id);
     if (props) {
       this.name = props.name;
       this.uses = props.uses;
@@ -86,12 +87,17 @@ export class Step implements ISynthesizable {
       this.timeoutMinutes = props.timeoutMinutes;
       this.if = props.if;
     }
+
+    // Add validation
+    this.node.addValidation({
+      validate: () => this.validate(),
+    });
   }
 
   /**
    * Create a step from an Action
    */
-  public static fromAction(action: Action, props?: {
+  public static fromAction(scope: Construct, id: string, action: Action, props?: {
     name?: string;
     env?: Record<string, string>;
     with?: Record<string, any>;
@@ -100,7 +106,7 @@ export class Step implements ISynthesizable {
     timeoutMinutes?: number;
     if?: string;
   }): Step {
-    const step = new Step({
+    const step = new Step(scope, id, {
       name: props?.name,
       uses: action.toString(),
       env: props?.env,
@@ -116,7 +122,7 @@ export class Step implements ISynthesizable {
   /**
    * Synthesize this step to a plain object
    */
-  public synthesize(): any {
+  public synth(): any {
     const result: any = {};
 
     if (this.name) {
@@ -164,6 +170,23 @@ export class Step implements ISynthesizable {
     }
 
     return result;
+  }
+
+  /**
+   * Validate the step
+   */
+  private validate(): string[] {
+    const errors: string[] = [];
+
+    if (!this.uses && !this.run) {
+      errors.push('Step must have either uses or run');
+    }
+
+    if (this.uses && this.run) {
+      errors.push('Step cannot have both uses and run');
+    }
+
+    return errors;
   }
 }
 

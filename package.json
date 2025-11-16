@@ -4,6 +4,7 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
+    "gen": "tsc --project tsconfig.json",
     "build": "jsii",
     "build:watch": "jsii --watch",
     "package": "jsii-pacmak",
@@ -43,12 +44,12 @@
     }
   },
   "dependencies": {
-    "js-yaml": "^4.1.0"
+    "constructs": "^10.4.3",
+    "yaml": "^2.0.0"
   },
   "devDependencies": {
+    "@types/node": "^20.0.0",
     "jsii": "^5.9.13",
-    "jsii-pacmak": "^1.119.0",
-    "@types/js-yaml": "^4.0.9",
-    "@types/node": "^20.0.0"
+    "jsii-pacmak": "^1.119.0"
   }
 }

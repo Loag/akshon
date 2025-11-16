@@ -30,7 +30,9 @@
     "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
   },
   "include": [
-    "**/*.ts"
+    "**/*.ts",
+    "*.ts",
+    "lib/**/*.ts"
   ],
   "exclude": [
     "node_modules",
