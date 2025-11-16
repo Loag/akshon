@@ -2,50 +2,50 @@ import { Workflow, Job, Step, Action, synth } from './src/index';
 import * as fs from 'fs';
 
 const workflowProps = {
-  name: 'CI',
+  name: 'build akshon artifact',
   on: {
     push: {
-      branches: ['main', 'develop'],
+      branches: ['master'],
     },
   },
 };
 
-// Create a workflow (root construct, scope is undefined)
 const workflow = new Workflow(workflowProps);
 
-// Create a job as a child of the workflow
 const buildJob = new Job(workflow, 'build', {
   runsOn: 'ubuntu-latest',
-  name: 'Build and Test',
+  name: 'Build',
 });
 
-// Add steps to the job (steps are children of the job)
-Step.fromAction(buildJob, 'checkout', new Action('actions', 'checkout', 'v3'));
+Step.fromAction(buildJob, 'checkout', new Action('actions', 'checkout', 'v5'));
 
-new Step(buildJob, 'setup-node', {
-  name: 'Setup Node.js',
-  uses: 'actions/setup-node@v3',
+Step.fromAction(buildJob, 'setup-node', new Action('actions', 'setup-node', 'v5'), {
   with: {
-    'node-version': '18',
+    'node-version': '24.11.1',
   },
 });
 
 new Step(buildJob, 'install-deps', {
   name: 'Install dependencies',
-  run: 'npm ci',
+  run: 'npm install',
 });
 
-new Step(buildJob, 'run-tests', {
-  name: 'Run tests',
-  run: 'npm test',
+new Step(buildJob, 'build', {
+  name: 'Build',
+  run: 'npm run build',
 });
 
-// Register the job with the workflow (for metadata)
+Step.fromAction(buildJob, 'upload-artifact', new Action('actions', 'upload-artifact', 'v5'), {
+  with: {
+    name: 'build-artifact',
+    path: 'dist',
+    overwrite: true
+  },
+});
+
 workflow.addJob('build', buildJob);
 
-// Synthesize to YAML
 const yaml = synth(workflow);
 
-// Optionally write to a file
-fs.writeFileSync('ci.yml', yaml);
+fs.writeFileSync('.github/workflows/build.yml', yaml);
 
