@@ -21,7 +21,32 @@ Step.fromAction(buildJob, 'checkout', new Action('actions', 'checkout', 'v5'));
 
 Step.fromAction(buildJob, 'setup-node', new Action('actions', 'setup-node', 'v5'), {
   with: {
-    'node-version': '24.11.1',
+    'node-version': 24.11,
+  },
+});
+
+Step.fromAction(buildJob, 'setup-java', new Action('actions', 'setup-java', 'v4'), {
+  with: {
+    "distribution": 'temurin',
+    "java-version": 17
+  },
+});
+
+Step.fromAction(buildJob, 'setup-dotnet', new Action('actions', 'setup-dotnet', 'v4'), {
+  with: {
+    "dotnet-version": 8.0,
+  },
+});
+
+Step.fromAction(buildJob, 'setup-python', new Action('actions', 'setup-python', 'v4'), {
+  with: {
+    "python-version": 3.11,
+  },
+});
+
+Step.fromAction(buildJob, 'setup-go', new Action('actions', 'setup-go', 'v4'), {
+  with: {
+    "go-version": 1.22,
   },
 });
 
@@ -33,6 +58,11 @@ new Step(buildJob, 'install-deps', {
 new Step(buildJob, 'build', {
   name: 'Build',
   run: 'npm run build',
+});
+
+new Step(buildJob, 'package', {
+  name: 'Package',
+  run: 'npm run package',
 });
 
 Step.fromAction(buildJob, 'upload-artifact', new Action('actions', 'upload-artifact', 'v5'), {

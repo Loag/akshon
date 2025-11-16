@@ -32,7 +32,32 @@ Step.fromAction(buildJob, 'checkout', new Action('actions', 'checkout', 'v5'));
 
 Step.fromAction(buildJob, 'setup-node', new Action('actions', 'setup-node', 'v5'), {
   with: {
-    'node-version': '24.11.1',
+    'node-version': 24.11,
+  },
+});
+
+Step.fromAction(buildJob, 'setup-java', new Action('actions', 'setup-java', 'v4'), {
+  with: {
+    "distribution": 'temurin',
+    "java-version": 17
+  },
+});
+
+Step.fromAction(buildJob, 'setup-dotnet', new Action('actions', 'setup-dotnet', 'v4'), {
+  with: {
+    "dotnet-version": 8.0,
+  },
+});
+
+Step.fromAction(buildJob, 'setup-python', new Action('actions', 'setup-python', 'v4'), {
+  with: {
+    "python-version": 3.11,
+  },
+});
+
+Step.fromAction(buildJob, 'setup-go', new Action('actions', 'setup-go', 'v4'), {
+  with: {
+    "go-version": 1.22,
   },
 });
 
@@ -44,6 +69,11 @@ new Step(buildJob, 'install-deps', {
 new Step(buildJob, 'build', {
   name: 'Build',
   run: 'npm run build',
+});
+
+new Step(buildJob, 'package', {
+  name: 'Package',
+  run: 'npm run package',
 });
 
 Step.fromAction(buildJob, 'upload-artifact', new Action('actions', 'upload-artifact', 'v5'), {
@@ -59,6 +89,7 @@ workflow.addJob('build', buildJob);
 const yaml = synth(workflow);
 
 fs.writeFileSync('.github/workflows/build.yml', yaml);
+
 ```
 
 ## Output
@@ -79,11 +110,26 @@ jobs:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
         with:
-          node-version: 24.11.1
+          node-version: 24.11
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+      - uses: actions/setup-go@v4
+        with:
+          go-version: 1.22
       - name: Install dependencies
         run: npm install
       - name: Build
         run: npm run build
+      - name: Package
+        run: npm run package
       - uses: actions/upload-artifact@v5
         with:
           name: build-artifact
