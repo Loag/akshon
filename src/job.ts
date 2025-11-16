@@ -2,6 +2,81 @@ import { Construct } from 'constructs';
 import { Step } from './step';
 import { Workflow } from './workflow';
 import { ISynth } from './synth';
+
+/**
+ * Default run configuration for a job
+ */
+export interface JobDefaultRunConfig {
+  readonly shell?: string;
+  readonly workingDirectory?: string;
+}
+
+/**
+ * Default settings for a job
+ */
+export interface JobDefaults {
+  readonly run?: JobDefaultRunConfig;
+}
+
+/**
+ * Strategy configuration for matrix builds
+ */
+export interface JobStrategy {
+  readonly matrix: Record<string, any[]>;
+  readonly failFast?: boolean;
+  readonly maxParallel?: number;
+}
+
+/**
+ * Container credentials
+ */
+export interface ContainerCredentials {
+  readonly username: string;
+  readonly password: string;
+}
+
+/**
+ * Container configuration
+ */
+export interface JobContainer {
+  readonly image: string;
+  readonly credentials?: ContainerCredentials;
+  readonly env?: Record<string, string>;
+  readonly ports?: number[];
+  readonly volumes?: string[];
+  readonly options?: string;
+}
+
+/**
+ * Service configuration
+ */
+export interface JobService {
+  readonly image: string;
+  readonly credentials?: ContainerCredentials;
+  readonly env?: Record<string, string>;
+  readonly ports?: string[];
+  readonly volumes?: string[];
+  readonly options?: string;
+}
+
+/**
+ * Job properties
+ */
+export interface JobProps {
+  readonly runsOn: string | string[];
+  readonly name?: string;
+  readonly needs?: string[];
+  readonly env?: Record<string, string>;
+  readonly defaults?: JobDefaults;
+  readonly strategy?: JobStrategy;
+  readonly continueOnError?: boolean;
+  readonly timeoutMinutes?: number;
+  readonly permissions?: Record<string, string | 'read' | 'write' | 'none'>;
+  readonly container?: JobContainer;
+  readonly services?: Record<string, JobService>;
+  readonly outputs?: Record<string, string>;
+}
+
 /**
  * A GitHub Actions job
  */
@@ -29,21 +104,12 @@ export class Job extends Construct implements ISynth {
   /**
    * The default shell to use for run steps
    */
-  public defaults?: {
-    run?: {
-      shell?: string;
-      workingDirectory?: string;
-    };
-  };
+  public defaults?: JobDefaults;
 
   /**
    * The strategy to use for matrix builds
    */
-  public strategy?: {
-    matrix: Record<string, any[]>;
-    failFast?: boolean;
-    maxParallel?: number;
-  };
+  public strategy?: JobStrategy;
 
   /**
    * Continue running other jobs if this job fails
@@ -63,81 +129,19 @@ export class Job extends Construct implements ISynth {
   /**
    * The container to run the job in
    */
-  public container?: {
-    image: string;
-    credentials?: {
-      username: string;
-      password: string;
-    };
-    env?: Record<string, string>;
-    ports?: number[];
-    volumes?: string[];
-    options?: string;
-  };
+  public container?: JobContainer;
 
   /**
    * Services to run alongside the job
    */
-  public services?: Record<string, {
-    image: string;
-    credentials?: {
-      username: string;
-      password: string;
-    };
-    env?: Record<string, string>;
-    ports?: string[];
-    volumes?: string[];
-    options?: string;
-  }>;
+  public services?: Record<string, JobService>;
 
   /**
    * The output variables from this job
    */
   public outputs?: Record<string, string>;
 
-  constructor(scope: Construct, id: string, props: {
-    runsOn: string | string[];
-    name?: string;
-    needs?: string[];
-    env?: Record<string, string>;
-    defaults?: {
-      run?: {
-        shell?: string;
-        workingDirectory?: string;
-      };
-    };
-    strategy?: {
-      matrix: Record<string, any[]>;
-      failFast?: boolean;
-      maxParallel?: number;
-    };
-    continueOnError?: boolean;
-    timeoutMinutes?: number;
-    permissions?: Record<string, string | 'read' | 'write' | 'none'>;
-    container?: {
-      image: string;
-      credentials?: {
-        username: string;
-        password: string;
-      };
-      env?: Record<string, string>;
-      ports?: number[];
-      volumes?: string[];
-      options?: string;
-    };
-    services?: Record<string, {
-      image: string;
-      credentials?: {
-        username: string;
-        password: string;
-      };
-      env?: Record<string, string>;
-      ports?: string[];
-      volumes?: string[];
-      options?: string;
-    }>;
-    outputs?: Record<string, string>;
-  }) {
+  constructor(scope: Construct, id: string, props: JobProps) {
     super(scope, id);
     this.runsOn = props.runsOn;
     this.name = props.name;

@@ -1,6 +1,37 @@
 import { Construct } from 'constructs';
 import { Action } from './action';
 import { ISynth } from './synth';
+
+/**
+ * Step properties
+ */
+export interface StepProps {
+  readonly name?: string;
+  readonly uses?: string;
+  readonly run?: string;
+  readonly env?: Record<string, string>;
+  readonly with?: Record<string, any>;
+  readonly workingDirectory?: string;
+  readonly shell?: string;
+  readonly id?: string;
+  readonly continueOnError?: boolean;
+  readonly timeoutMinutes?: number;
+  readonly if?: string;
+}
+
+/**
+ * Step properties for creating a step from an Action
+ */
+export interface StepFromActionProps {
+  readonly name?: string;
+  readonly env?: Record<string, string>;
+  readonly with?: Record<string, any>;
+  readonly id?: string;
+  readonly continueOnError?: boolean;
+  readonly timeoutMinutes?: number;
+  readonly if?: string;
+}
+
 /**
  * A step in a GitHub Actions job
  */
@@ -60,19 +91,7 @@ export class Step extends Construct implements ISynth {
    */
   public if?: string;
 
-  constructor(scope: Construct, id: string, props?: {
-    name?: string;
-    uses?: string;
-    run?: string;
-    env?: Record<string, string>;
-    with?: Record<string, any>;
-    workingDirectory?: string;
-    shell?: string;
-    id?: string;
-    continueOnError?: boolean;
-    timeoutMinutes?: number;
-    if?: string;
-  }) {
+  constructor(scope: Construct, id: string, props?: StepProps) {
     super(scope, id);
     if (props) {
       this.name = props.name;
@@ -97,16 +116,8 @@ export class Step extends Construct implements ISynth {
   /**
    * Create a step from an Action
    */
-  public static fromAction(scope: Construct, id: string, action: Action, props?: {
-    name?: string;
-    env?: Record<string, string>;
-    with?: Record<string, any>;
-    id?: string;
-    continueOnError?: boolean;
-    timeoutMinutes?: number;
-    if?: string;
-  }): Step {
-    const step = new Step(scope, id, {
+  public static fromAction(scope: Construct, stepId: string, action: Action, props?: StepFromActionProps): Step {
+    const step = new Step(scope, stepId, {
       name: props?.name,
       uses: action.toString(),
       env: props?.env,

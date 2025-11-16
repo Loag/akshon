@@ -3,81 +3,161 @@ import { Job } from './job';
 import { ISynth } from './synth';
 
 /**
+ * Push event trigger configuration
+ */
+export interface PushTrigger {
+  readonly branches?: string[];
+  readonly tags?: string[];
+  readonly paths?: string[];
+  readonly pathsIgnore?: string[];
+}
+
+/**
+ * Pull request event trigger configuration
+ */
+export interface PullRequestTrigger {
+  readonly types?: string[];
+  readonly branches?: string[];
+  readonly branchesIgnore?: string[];
+  readonly paths?: string[];
+  readonly pathsIgnore?: string[];
+}
+
+/**
+ * Workflow dispatch input configuration
+ */
+export interface WorkflowDispatchInput {
+  readonly description: string;
+  readonly required?: boolean;
+  readonly default?: string;
+  readonly type?: 'string' | 'choice' | 'boolean' | 'environment';
+  readonly options?: string[];
+}
+
+/**
+ * Workflow dispatch trigger configuration
+ */
+export interface WorkflowDispatchTrigger {
+  readonly inputs?: Record<string, WorkflowDispatchInput>;
+}
+
+/**
+ * Schedule item configuration
+ */
+export interface ScheduleItem {
+  readonly cron: string;
+}
+
+/**
+ * Repository dispatch trigger configuration
+ */
+export interface RepositoryDispatchTrigger {
+  readonly types?: string[];
+}
+
+/**
+ * Workflow call input configuration
+ */
+export interface WorkflowCallInput {
+  readonly description: string;
+  readonly required?: boolean;
+  readonly default?: string;
+  readonly type?: 'string' | 'boolean' | 'number';
+}
+
+/**
+ * Workflow call output configuration
+ */
+export interface WorkflowCallOutput {
+  readonly description: string;
+  readonly value: string;
+}
+
+/**
+ * Workflow call secret configuration
+ */
+export interface WorkflowCallSecret {
+  readonly description: string;
+  readonly required?: boolean;
+}
+
+/**
+ * Workflow call trigger configuration
+ */
+export interface WorkflowCallTrigger {
+  readonly inputs?: Record<string, WorkflowCallInput>;
+  readonly outputs?: Record<string, WorkflowCallOutput>;
+  readonly secrets?: Record<string, WorkflowCallSecret>;
+}
+
+/**
  * Workflow trigger events
  */
 export interface WorkflowTriggers {
   /**
    * Trigger on push events
    */
-  push?: {
-    branches?: string[];
-    tags?: string[];
-    paths?: string[];
-    pathsIgnore?: string[];
-  };
+  readonly push?: PushTrigger;
 
   /**
    * Trigger on pull request events
    */
-  pullRequest?: {
-    types?: string[];
-    branches?: string[];
-    branchesIgnore?: string[];
-    paths?: string[];
-    pathsIgnore?: string[];
-  };
+  readonly pullRequest?: PullRequestTrigger;
 
   /**
    * Trigger on workflow dispatch (manual trigger)
    */
-  workflowDispatch?: {
-    inputs?: Record<string, {
-      description: string;
-      required?: boolean;
-      default?: string;
-      type?: 'string' | 'choice' | 'boolean' | 'environment';
-      options?: string[];
-    }>;
-  };
+  readonly workflowDispatch?: WorkflowDispatchTrigger;
 
   /**
    * Trigger on schedule (cron)
    */
-  schedule?: Array<{
-    cron: string;
-  }>;
+  readonly schedule?: ScheduleItem[];
 
   /**
    * Trigger on repository dispatch
    */
-  repositoryDispatch?: {
-    types?: string[];
-  };
+  readonly repositoryDispatch?: RepositoryDispatchTrigger;
 
   /**
    * Trigger on other workflow completion
    */
-  workflowCall?: {
-    inputs?: Record<string, {
-      description: string;
-      required?: boolean;
-      default?: string;
-      type?: 'string' | 'boolean' | 'number';
-    }>;
-    outputs?: Record<string, {
-      description: string;
-      value: string;
-    }>;
-    secrets?: Record<string, {
-      description: string;
-      required?: boolean;
-    }>;
-  };
+  readonly workflowCall?: WorkflowCallTrigger;
+}
 
-  /**
-   * Custom event triggers
-   */
-  [key: string]: any;
+/**
+ * Default run configuration
+ */
+export interface DefaultRunConfig {
+  readonly shell?: string;
+  readonly workingDirectory?: string;
+}
+
+/**
+ * Default settings for jobs
+ */
+export interface WorkflowDefaults {
+  readonly run?: DefaultRunConfig;
+}
+
+/**
+ * Concurrency settings
+ */
+export interface WorkflowConcurrency {
+  readonly group?: string;
+  readonly cancelInProgress?: boolean;
+}
+
+/**
+ * Workflow properties
+ */
+export interface WorkflowProps {
+  readonly name: string;
+  readonly on: WorkflowTriggers;
+  readonly env?: Record<string, string>;
+  readonly defaults?: WorkflowDefaults;
+  readonly permissions?: Record<string, string | 'read' | 'write' | 'none'>;
+  readonly concurrency?: WorkflowConcurrency;
 }
 
 /**
@@ -102,12 +182,7 @@ export class Workflow extends Construct implements ISynth {
   /**
    * Default settings for all jobs
    */
-  public defaults?: {
-    run?: {
-      shell?: string;
-      workingDirectory?: string;
-    };
-  };
+  public defaults?: WorkflowDefaults;
 
   /**
    * Permissions for the workflow
@@ -117,32 +192,14 @@ export class Workflow extends Construct implements ISynth {
   /**
    * Concurrency settings
    */
-  public concurrency?: {
-    group?: string;
-    cancelInProgress?: boolean;
-  };
+  public concurrency?: WorkflowConcurrency;
 
   /**
    * Map of job IDs to jobs
    */
   private readonly jobIdMap: Map<string, Job> = new Map();
 
-  constructor(props: {
-    name: string;
-    on: WorkflowTriggers;
-    env?: Record<string, string>;
-    defaults?: {
-      run?: {
-        shell?: string;
-        workingDirectory?: string;
-      };
-    };
-    permissions?: Record<string, string | 'read' | 'write' | 'none'>;
-    concurrency?: {
-      group?: string;
-      cancelInProgress?: boolean;
-    };
-  }) {
+  constructor(props: WorkflowProps) {
     super(undefined as any, '');
     this.name = props.name;
     this.on = props.on;

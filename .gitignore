@@ -140,8 +140,6 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
 
+lib
 .jsii
-
-*.js
-
 *.yml

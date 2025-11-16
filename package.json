@@ -2,7 +2,7 @@
   "name": "akshon",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "lib/index.js",
   "scripts": {
     "gen": "tsc --project tsconfig.json",
     "build": "jsii",
@@ -25,28 +25,42 @@
   },
   "homepage": "https://github.com/Loag/akshon#readme",
   "stability": "stable",
-  "types": "dist/index.d.ts",
+  "types": "lib/index.d.ts",
   "jsii": {
     "versionFormat": "full",
     "outdir": "dist",
     "targets": {
+      "java": {
+        "package": "org.akshon",
+        "maven": {
+          "groupId": "org.akshon",
+          "artifactId": "akshon"
+        }
+      },
+      "dotnet": {
+        "namespace": "Org.Akshon",
+        "packageId": "Org.Akshon"
+      },
       "python": {
         "distName": "akshon",
         "module": "akshon"
       },
       "go": {
-        "packageName": "akshon",
-        "moduleName": "akshon"
+        "moduleName": "github.com/Loag/akshon-go"
       }
     },
     "tsc": {
-      "outDir": "dist"
+      "outDir": "lib",
+      "rootDir": "src"
     }
   },
   "dependencies": {
     "constructs": "^10.4.3",
     "yaml": "^2.0.0"
   },
+  "bundledDependencies": [
+    "yaml"
+  ],
   "devDependencies": {
     "@types/node": "^20.0.0",
     "jsii": "^5.9.13",

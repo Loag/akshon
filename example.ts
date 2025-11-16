@@ -1,4 +1,4 @@
-import { Workflow, Job, Step, Action, synth } from './index';
+import { Workflow, Job, Step, Action, synth } from './src/index';
 import * as fs from 'fs';
 
 const workflowProps = {
