@@ -46,7 +46,7 @@ Step.fromAction(buildJob, 'setup-python', new Action('actions', 'setup-python', 
 
 Step.fromAction(buildJob, 'setup-go', new Action('actions', 'setup-go', 'v4'), {
   with: {
-    "go-version": 1.22,
+    "go-version": 1.23,
   },
 });
 
