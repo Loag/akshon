@@ -39,3 +39,5 @@ export { Step, StepProps, StepFromActionProps } from './step';
 // Action
 export { Action } from './action';
 
+// Actions
+export { actions } from './actions';

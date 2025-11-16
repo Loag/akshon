@@ -1,4 +1,4 @@
-import { Workflow, Job, Step, Action, synth } from './src/index';
+import { Workflow, Job, Step, Action, synth, actions } from './src/index';
 import * as fs from 'fs';
 
 const workflowProps = {
@@ -17,7 +17,7 @@ const buildJob = new Job(workflow, 'build', {
   name: 'Build',
 });
 
-Step.fromAction(buildJob, 'checkout', new Action('actions', 'checkout', 'v5'));
+actions.checkoutV5(buildJob)
 
 Step.fromAction(buildJob, 'setup-node', new Action('actions', 'setup-node', 'v5'), {
   with: {
