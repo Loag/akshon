@@ -1,0 +1,49 @@
+{
+  "name": "akshon",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "jsii",
+    "build:watch": "jsii --watch",
+    "package": "jsii-pacmak",
+    "pack": "jsii-pacmak --code-only"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Loag/akshon.git"
+  },
+  "keywords": [],
+  "author": {
+    "name": "Loag"
+  },
+  "license": "Apache-2.0",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Loag/akshon/issues"
+  },
+  "homepage": "https://github.com/Loag/akshon#readme",
+  "stability": "stable",
+  "types": "dist/index.d.ts",
+  "jsii": {
+    "versionFormat": "full",
+    "outdir": "dist",
+    "targets": {
+      "python": {
+        "distName": "akshon",
+        "module": "akshon"
+      },
+      "go": {
+        "packageName": "akshon",
+        "moduleName": "akshon"
+      }
+    },
+    "tsc": {
+      "outDir": "dist"
+    }
+  },
+  "devDependencies": {
+    "jsii": "^5.9.13",
+    "jsii-pacmak": "^1.119.0"
+  }
+}
