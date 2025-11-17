@@ -140,6 +140,8 @@ jobs:
 
 ## TODO
 
+- doing scripts 
+
 cli:
 - create/init new project: creates a config for the project 
 - synth: gen the output. 
