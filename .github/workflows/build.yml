@@ -47,8 +47,8 @@ jobs:
         run: |
           NAME=$(jq -r '.name' package.json)
           VERSION=$(jq -r '.version' package.json)
-          FLAT_NAME=$(echo "$NAME" | sed 's/@//g; s/\//-/g')
-          TARBALL="dist/js/${FLAT_NAME}-${VERSION}.tgz"
+          UNSCOPED_NAME=$(echo "$NAME" | sed 's/.*\///')
+          TARBALL="dist/js/${UNSCOPED_NAME}@${VERSION}.jsii.tgz"
           echo "Tarball is: $TARBALL"
           npm publish "$TARBALL"
         env:

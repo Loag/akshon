@@ -82,8 +82,8 @@ Step.fromAction(buildJob, 'upload-artifact', new Action('actions', 'upload-artif
 const publish =
   'NAME=$(jq -r \'.name\' package.json)\n' +
   'VERSION=$(jq -r \'.version\' package.json)\n' +
-  'FLAT_NAME=$(echo "$NAME" | sed \'s/@//; s/\\/-/\')\n' +
-  'TARBALL="dist/js/${FLAT_NAME}-${VERSION}.tgz"\n' +
+  'UNSCOPED_NAME=$(echo "$NAME" | sed \'s/.*\\///\')\n' +
+  'TARBALL="dist/js/${UNSCOPED_NAME}@${VERSION}.jsii.tgz"\n' +
   'echo "Tarball is: $TARBALL"\n' +
   'npm publish "$TARBALL"\n';
 
