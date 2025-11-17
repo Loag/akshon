@@ -15,6 +15,10 @@ const workflow = new Workflow(workflowProps);
 const buildJob = new Job(workflow, 'build', {
   runsOn: 'ubuntu-latest',
   name: 'Build',
+  permissions: {
+    contents: 'read',
+    packages: 'write',
+  },
 });
 
 actions.checkoutV5(buildJob)
@@ -22,6 +26,8 @@ actions.checkoutV5(buildJob)
 Step.fromAction(buildJob, 'setup-node', new Action('actions', 'setup-node', 'v5'), {
   with: {
     'node-version': 24.11,
+    'registry-url': 'https://npm.pkg.github.com/',
+    'scope': '@loag',
   },
 });
 
@@ -70,6 +76,23 @@ Step.fromAction(buildJob, 'upload-artifact', new Action('actions', 'upload-artif
     name: 'build-artifact',
     path: 'dist',
     overwrite: true
+  },
+});
+
+const publish =
+  'NAME=$(jq -r \'.name\' package.json)\n' +
+  'VERSION=$(jq -r \'.version\' package.json)\n' +
+  'FLAT_NAME=$(echo "$NAME" | sed \'s/@//; s/\\/-/\')\n' +
+  'TARBALL="dist/js/${FLAT_NAME}-${VERSION}.tgz"\n' +
+  'echo "Tarball is: $TARBALL"\n' +
+  'npm publish "$TARBALL"\n';
+
+
+new Step(buildJob, 'publish', {
+  name: 'Publish',
+  run: publish,
+  env: {
+    NODE_AUTH_TOKEN: '${{ secrets.GITHUB_TOKEN }}',
   },
 });
 

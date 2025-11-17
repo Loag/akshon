@@ -41,3 +41,6 @@ export { Action } from './action';
 
 // Actions
 export { actions } from './actions';
+
+// Utils
+export { to_var } from './utils/var';

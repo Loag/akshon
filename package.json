@@ -1,5 +1,5 @@
 {
-  "name": "akshon",
+  "name": "@loag/akshon",
   "version": "1.0.0",
   "description": "",
   "main": "lib/index.js",
@@ -13,6 +13,9 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Loag/akshon.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
   },
   "keywords": [],
   "author": {

@@ -9,11 +9,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
     name: Build
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
         with:
           node-version: 24.11
+          registry-url: https://npm.pkg.github.com/
+          scope: "@loag"
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -38,3 +43,13 @@ jobs:
           name: build-artifact
           path: dist
           overwrite: true
+      - name: Publish
+        run: |
+          NAME=$(jq -r '.name' package.json)
+          VERSION=$(jq -r '.version' package.json)
+          FLAT_NAME=$(echo "$NAME" | sed 's/@//; s/\/-/')
+          TARBALL="dist/js/${FLAT_NAME}-${VERSION}.tgz"
+          echo "Tarball is: $TARBALL"
+          npm publish "$TARBALL"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
