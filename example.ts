@@ -92,7 +92,7 @@ new Step(buildJob, 'publish', {
   name: 'Publish',
   run: publish,
   env: {
-    NODE_AUTH_TOKEN: '${{ secrets.GITHUB_TOKEN }}',
+    NODE_AUTH_TOKEN: '${{ secrets.NPM_TOKEN }}',
   },
 });
 
