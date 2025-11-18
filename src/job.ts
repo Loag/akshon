@@ -1,7 +1,6 @@
 import { Construct } from 'constructs';
 import { Step } from './step';
 import { Workflow } from './workflow';
-import { ISynth } from './synth';
 
 /**
  * Default run configuration for a job
@@ -80,7 +79,7 @@ export interface JobProps {
 /**
  * A GitHub Actions job
  */
-export class Job extends Construct implements ISynth {
+export class Job extends Construct {
   /**
    * The type of machine to run the job on
    */

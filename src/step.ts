@@ -1,6 +1,5 @@
 import { Construct } from 'constructs';
 import { Action } from './action';
-import { ISynth } from './synth';
 
 /**
  * Step properties
@@ -35,7 +34,7 @@ export interface StepFromActionProps {
 /**
  * A step in a GitHub Actions job
  */
-export class Step extends Construct implements ISynth {
+export class Step extends Construct {
   /**
    * The name of the step
    */

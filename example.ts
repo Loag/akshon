@@ -1,5 +1,4 @@
-import { Workflow, Job, Step, Action, synth, actions } from './src/index';
-import * as fs from 'fs';
+import { Workflow, Job, Step, Action, actions } from './src/index';
 
 const workflowProps = {
   name: 'build akshon artifact',
@@ -97,7 +96,7 @@ new Step(buildJob, 'publish', {
 
 workflow.addJob('build', buildJob);
 
-const yaml = synth(workflow);
+const filePath = workflow.synth();
 
-fs.writeFileSync('.github/workflows/build.yml', yaml);
+console.log(`Generated workflow file: ${filePath}`);
 

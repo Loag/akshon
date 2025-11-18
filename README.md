@@ -9,8 +9,7 @@ this example builds the respective supported language libs and
 uploads them as an artifact
 
 ``` ts
-import { Workflow, Job, Step, Action, synth } from './src/index';
-import * as fs from 'fs';
+import { Workflow, Job, Step, Action, actions } from './src/index';
 
 const workflowProps = {
   name: 'build akshon artifact',
@@ -86,9 +85,8 @@ Step.fromAction(buildJob, 'upload-artifact', new Action('actions', 'upload-artif
 
 workflow.addJob('build', buildJob);
 
-const yaml = synth(workflow);
-
-fs.writeFileSync('.github/workflows/build.yml', yaml);
+const filePath = workflow.synth();
+console.log(`Generated workflow file: ${filePath}`);
 
 ```
 
