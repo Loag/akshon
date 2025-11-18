@@ -1,6 +1,3 @@
-// Core synthesis
-export { ISynth } from './synth';
-
 // Workflow
 export {
   Workflow,
