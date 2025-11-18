@@ -26,6 +26,7 @@ actions.checkoutV5(buildJob)
 Step.fromAction(buildJob, 'setup-node', new Action('actions', 'setup-node', 'v5'), {
   with: {
     'node-version': 24.11,
+    'registry-url': 'https://registry.npmjs.org/',
   },
 });
 
